@@ -22,6 +22,14 @@ contract MockToken {
         emit Transfer(address(0), msg.sender, initialSupply);
     }
 
+    // Função Faucet para permitir que utilizadores obtenham tokens de teste
+    function faucet() external {
+        uint256 amount = 1000 * 10**uint256(decimals);
+        balanceOf[msg.sender] += amount;
+        totalSupply += amount;
+        emit Transfer(address(0), msg.sender, amount);
+    }
+
     function transfer(address to, uint256 amount) external returns (bool) {
         require(balanceOf[msg.sender] >= amount, "Insufficient balance");
         balanceOf[msg.sender] -= amount;
