@@ -154,13 +154,22 @@ function App() {
     setLoading(true);
     try {
       const tokenAddr = tokenSym === 'USDC' ? config.USDC : config.USDT;
-      const tx = await signer.sendTransaction({ to: tokenAddr, data: SELECTORS.faucet });
+      const token = new ethers.Contract(tokenAddr, ["function faucet() external"], signer);
+      
+      console.log(`Calling faucet for ${tokenSym} at ${tokenAddr}...`);
+      const tx = await token.faucet();
+      console.log("Transaction sent:", tx.hash);
+      
       await tx.wait();
       fetchData();
       alert(`1,000 ${tokenSym} received!`);
     } catch (e) {
-      console.error(e);
-      alert("Faucet failed! You might need gas or the contract changed.");
+      console.error("Detailed Faucet Error:", e);
+      if (e.message.includes("user rejected")) {
+        alert("Transaction rejected by user.");
+      } else {
+        alert("Faucet failed! Check console for details. Make sure you are on LitVM LiteForge.");
+      }
     } finally {
       setLoading(false);
     }
