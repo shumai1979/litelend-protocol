@@ -10,7 +10,8 @@ const SELECTORS = {
   repay: "0x22867d78",
   getStats: "0xc59d4847",
   getPosition: "0x16c19739",
-  getLiquidity: "0x0910a510"
+  getLiquidity: "0x0910a510",
+  faucet: "0x34524419"
 };
 
 const ERC20_ABI = [
@@ -148,6 +149,23 @@ function App() {
     }
   };
 
+  const handleFaucet = async (tokenSym) => {
+    if (!signer) return alert("Connect wallet first!");
+    setLoading(true);
+    try {
+      const tokenAddr = tokenSym === 'USDC' ? config.USDC : config.USDT;
+      const tx = await signer.sendTransaction({ to: tokenAddr, data: SELECTORS.faucet });
+      await tx.wait();
+      fetchData();
+      alert(`1,000 ${tokenSym} received!`);
+    } catch (e) {
+      console.error(e);
+      alert("Faucet failed! You might need gas or the contract changed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-bg-base text-slate-100 font-sans selection:bg-primary selection:text-white">
       {/* Background Glow */}
@@ -167,13 +185,22 @@ function App() {
           </div>
         </div>
         
-        <button 
-          onClick={connectWallet}
-          className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-95 flex items-center gap-2"
-        >
-          <Wallet size={16} className={address ? 'text-primary' : 'text-slate-400'} />
-          {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Connect Wallet'}
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2 bg-slate-800/50 border border-slate-700/50 rounded-xl px-3 py-1.5">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Faucet:</span>
+            <button onClick={() => handleFaucet('USDC')} disabled={loading} className="text-xs font-bold text-primary hover:text-blue-400 transition-colors disabled:opacity-50">mUSDC</button>
+            <span className="text-slate-600">|</span>
+            <button onClick={() => handleFaucet('USDT')} disabled={loading} className="text-xs font-bold text-emerald-500 hover:text-emerald-400 transition-colors disabled:opacity-50">mUSDT</button>
+          </div>
+          
+          <button 
+            onClick={connectWallet}
+            className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-95 flex items-center gap-2"
+          >
+            <Wallet size={16} className={address ? 'text-primary' : 'text-slate-400'} />
+            {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Connect Wallet'}
+          </button>
+        </div>
       </nav>
 
       <main className="relative max-w-7xl mx-auto px-6 py-12 z-10">
