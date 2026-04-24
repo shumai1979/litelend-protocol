@@ -157,7 +157,8 @@ function App() {
       const token = new ethers.Contract(tokenAddr, ["function faucet() external"], signer);
       
       console.log(`Calling faucet for ${tokenSym} at ${tokenAddr}...`);
-      const tx = await token.faucet();
+      // Forçar limite de gás para evitar erros de estimação na LitVM
+      const tx = await token.faucet({ gasLimit: 200000 });
       console.log("Transaction sent:", tx.hash);
       
       await tx.wait();
