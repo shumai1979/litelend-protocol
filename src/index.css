@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+:root {
+  --bg-base: #020617;
+  --text-main: #f8fafc;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-main);
+  @apply font-sans antialiased;
+}

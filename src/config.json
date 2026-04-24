@@ -1,0 +1,7 @@
+{
+    "USDC": "0x515f564904E22713f15b56fdE37cF6d23dBF7037",
+    "USDT": "0x096929b26061eEA5CdE6ad6Ed1544fd3feA378Ea",
+    "LiteLend": "0x93BC59d6Ca3Ac6B4581764C68daB890F52CaA3BC",
+    "chainId": 4441,
+    "rpcUrl": "https://liteforge.rpc.caldera.xyz/http"
+}

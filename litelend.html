@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title>LiteLend | LitVM Native Money Market</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --bg-base: #020617;
+            --bg-card: #0f172a;
+            --bg-hover: #1e293b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: radial-gradient(circle at top, rgba(59,130,246,0.1) 0%, transparent 50%);
+        }
+
+        /* --- Header --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 48px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo span { color: var(--primary); }
+        .network-badge {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn:hover { background: var(--primary-hover); }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+        }
+        .btn-outline:hover { background: var(--bg-hover); }
+
+        /* --- Main Layout --- */
+        main {
+            flex: 1;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .dashboard-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .dashboard-header h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .dashboard-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+        }
+        .stat-card h3 {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            font-family: 'Syne', sans-serif;
+        }
+        .val-green { color: var(--accent-green); }
+
+        .markets-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        @media (max-width: 768px) {
+            .markets-grid { grid-template-columns: 1fr; }
+        }
+
+        .market-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+        }
+        .market-panel h2 {
+            font-family: 'Syne', sans-serif;
+            margin-bottom: 24px;
+            font-size: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* --- Asset Row --- */
+        .asset-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--bg-base);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+        }
+        .asset-info { display: flex; align-items: center; gap: 12px; }
+        .asset-icon {
+            width: 36px; height: 36px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 0.8rem;
+        }
+        .asset-name { font-weight: 600; font-size: 1.1rem; }
+        .asset-bal { color: var(--text-muted); font-size: 0.85rem; }
+
+        /* --- Action Area --- */
+        .action-box {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .action-box input {
+            flex: 1;
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .action-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-group button { flex: 1; }
+        
+        .btn-supply { background: var(--primary); }
+        .btn-withdraw { background: var(--bg-hover); border: 1px solid var(--border-color); }
+        .btn-borrow { background: var(--accent-green); }
+        .btn-repay { background: var(--bg-hover); border: 1px solid var(--border-color); }
+
+        /* Status Toast */
+        #statusToast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--bg-card);
+            border-left: 4px solid var(--primary);
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transform: translateX(150%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+        #statusToast.show { transform: translateX(0); }
+
+        /* Setup panel */
+        .setup-panel {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid var(--primary);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 30px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">LiteLend <span>Protocol</span> <span class="network-badge">LitVM Testnet</span></div>
+        <button id="btnConnect" class="btn">Connect Wallet</button>
+    </header>
+
+    <main>
+        <div id="setupPanel" class="setup-panel">
+            <h3>Developer Setup Required</h3>
+            <p style="margin: 10px 0; color: var(--text-muted); font-size: 0.9rem;">No config.json found or contract addresses missing. Please run `python deploy_litelend.py` first.</p>
+        </div>
+
+        <div class="dashboard-header">
+            <h1>Supply & Borrow</h1>
+            <p>Earn yield on your assets or borrow against them on the LitVM network.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Supplied</h3>
+                <div class="value" id="statTs">$0.00</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Borrowed</h3>
+                <div class="value" id="statTb">$0.00</div>
+            </div>
+            <div class="stat-card">
+                <h3>Net APY</h3>
+                <div class="value val-green">5.20%</div>
+            </div>
+        </div>
+
+        <div class="markets-grid">
+            <!-- Supply Market -->
+            <div class="market-panel">
+                <h2>Supply Market <span>LTV 80%</span></h2>
+                
+                <!-- mUSDC Supply -->
+                <div class="asset-row">
+                    <div class="asset-info">
+                        <div class="asset-icon" style="background:#2775ca;">USDC</div>
+                        <div>
+                            <div class="asset-name">mUSDC</div>
+                            <div class="asset-bal">Wallet: <span id="wBalUSDC">0.00</span></div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="asset-name" id="supUSDC">0.00</div>
+                        <div class="asset-bal">Supplied</div>
+                    </div>
+                </div>
+                <div class="action-box">
+                    <input type="number" id="inpSupUSDC" placeholder="Amount"/>
+                    <button class="btn btn-supply" onclick="doAction('USDC','supply')">Supply</button>
+                    <button class="btn btn-withdraw" onclick="doAction('USDC','withdraw')">Withdraw</button>
+                </div>
+
+                <div style="margin: 24px 0; border-bottom: 1px solid var(--border-color);"></div>
+
+                <!-- mUSDT Supply -->
+                <div class="asset-row">
+                    <div class="asset-info">
+                        <div class="asset-icon" style="background:#26a17b;">USDT</div>
+                        <div>
+                            <div class="asset-name">mUSDT</div>
+                            <div class="asset-bal">Wallet: <span id="wBalUSDT">0.00</span></div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="asset-name" id="supUSDT">0.00</div>
+                        <div class="asset-bal">Supplied</div>
+                    </div>
+                </div>
+                <div class="action-box">
+                    <input type="number" id="inpSupUSDT" placeholder="Amount"/>
+                    <button class="btn btn-supply" onclick="doAction('USDT','supply')">Supply</button>
+                    <button class="btn btn-withdraw" onclick="doAction('USDT','withdraw')">Withdraw</button>
+                </div>
+            </div>
+
+            <!-- Borrow Market -->
+            <div class="market-panel">
+                <h2>Borrow Market <span>APR 8.9%</span></h2>
+                <div style="margin-bottom: 20px; font-size: 0.9rem; color: var(--text-muted);">
+                    Borrow Limit Used: <span id="borrowLimitUsed" style="color:white; font-weight:bold;">0%</span>
+                </div>
+                
+                <!-- mUSDC Borrow -->
+                <div class="asset-row">
+                    <div class="asset-info">
+                        <div class="asset-icon" style="background:#2775ca;">USDC</div>
+                        <div>
+                            <div class="asset-name">mUSDC</div>
+                            <div class="asset-bal">Available: <span id="liqUSDC">0.00</span></div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="asset-name" id="borUSDC">0.00</div>
+                        <div class="asset-bal">Borrowed</div>
+                    </div>
+                </div>
+                <div class="action-box">
+                    <input type="number" id="inpBorUSDC" placeholder="Amount"/>
+                    <button class="btn btn-borrow" onclick="doAction('USDC','borrow')">Borrow</button>
+                    <button class="btn btn-repay" onclick="doAction('USDC','repay')">Repay</button>
+                </div>
+
+                <div style="margin: 24px 0; border-bottom: 1px solid var(--border-color);"></div>
+
+                <!-- mUSDT Borrow -->
+                <div class="asset-row">
+                    <div class="asset-info">
+                        <div class="asset-icon" style="background:#26a17b;">USDT</div>
+                        <div>
+                            <div class="asset-name">mUSDT</div>
+                            <div class="asset-bal">Available: <span id="liqUSDT">0.00</span></div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="asset-name" id="borUSDT">0.00</div>
+                        <div class="asset-bal">Borrowed</div>
+                    </div>
+                </div>
+                <div class="action-box">
+                    <input type="number" id="inpBorUSDT" placeholder="Amount"/>
+                    <button class="btn btn-borrow" onclick="doAction('USDT','borrow')">Borrow</button>
+                    <button class="btn btn-repay" onclick="doAction('USDT','repay')">Repay</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="statusToast">Connecting...</div>
+
+    <!-- Ethers.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script>
+        const SELECTORS = {
+            supply: "0xf2b9fdb8",
+            withdraw: "0xf3fef3a3",
+            borrow: "0x4b8a3529",
+            repay: "0x22867d78",
+            getStats: "0xc59d4847",
+            getPosition: "0x16c19739",
+            getLiquidity: "0x0910a510"
+        };
+
+        const ERC20_ABI = [
+            "function approve(address spender, uint256 amount) external returns (bool)",
+            "function allowance(address owner, address spender) external view returns (uint256)",
+            "function balanceOf(address account) external view returns (uint256)",
+            "function mint() external" // Helper if we want user to mint
+        ];
+
+        let config = null;
+        let provider, signer, userAddress;
+        
+        function toast(msg, isError = false) {
+            const el = document.getElementById('statusToast');
+            el.innerText = msg;
+            el.style.borderLeftColor = isError ? 'var(--accent-red)' : 'var(--accent-green)';
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 5000);
+        }
+
+        async function init() {
+            try {
+                const res = await fetch('config.json');
+                if(!res.ok) throw new Error("No config.json");
+                config = await res.json();
+            } catch(e) {
+                document.getElementById('setupPanel').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('btnConnect').onclick = connectWallet;
+        }
+
+        async function connectWallet() {
+            if(!window.ethereum) return toast("No MetaMask detected!", true);
+            try {
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                signer = provider.getSigner();
+                userAddress = await signer.getAddress();
+                
+                document.getElementById('btnConnect').innerText = 
+                    userAddress.substring(0,6) + "..." + userAddress.substring(38);
+                
+                // Switch to LitVM LiteForge Testnet
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: ethers.utils.hexValue(config.chainId) }]
+                    });
+                } catch(err) {
+                    if(err.code === 4902) {
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: ethers.utils.hexValue(config.chainId),
+                                chainName: 'LitVM LiteForge',
+                                rpcUrls: [config.rpcUrl],
+                                nativeCurrency: { name: "LTC", symbol: "LTC", decimals: 18 },
+                                blockExplorerUrls: ["https://liteforge.explorer.caldera.xyz"]
+                            }]
+                        });
+                    }
+                }
+                
+                toast("Wallet Connected!");
+                refreshData();
+                setInterval(refreshData, 15000);
+            } catch (err) {
+                console.error(err);
+                toast("Connection failed", true);
+            }
+        }
+
+        async function refreshData() {
+            if(!signer || !config) return;
+            
+            try {
+                // 1. ERC20 Balances
+                const usdc = new ethers.Contract(config.USDC, ERC20_ABI, provider);
+                const usdt = new ethers.Contract(config.USDT, ERC20_ABI, provider);
+                
+                const balUSDC = await usdc.balanceOf(userAddress);
+                const balUSDT = await usdt.balanceOf(userAddress);
+                
+                document.getElementById('wBalUSDC').innerText = ethers.utils.formatUnits(balUSDC, 6);
+                document.getElementById('wBalUSDT').innerText = ethers.utils.formatUnits(balUSDT, 6);
+
+                // 2. Protocol Stats
+                const ts = await provider.call({ to: config.LiteLend, data: SELECTORS.getStats });
+                if(ts !== "0x") {
+                    const stats = ethers.utils.defaultAbiCoder.decode(["uint256","uint256","uint256","uint256","uint256","uint256"], ts);
+                    document.getElementById('statTs').innerText = "$" + ethers.utils.formatUnits(stats[0], 6);
+                    document.getElementById('statTb').innerText = "$" + ethers.utils.formatUnits(stats[1], 6);
+                }
+
+                // 3. User Position
+                const posData = await provider.call({
+                    to: config.LiteLend,
+                    data: SELECTORS.getPosition + ethers.utils.defaultAbiCoder.encode(["address"], [userAddress]).slice(2)
+                });
+                
+                if(posData !== "0x") {
+                    const pos = ethers.utils.defaultAbiCoder.decode(["uint256","uint256","uint256","uint256","uint256","uint256","bool"], posData);
+                    document.getElementById('supUSDC').innerText = ethers.utils.formatUnits(pos[0], 6);
+                    document.getElementById('supUSDT').innerText = ethers.utils.formatUnits(pos[1], 6);
+                    document.getElementById('borUSDC').innerText = ethers.utils.formatUnits(pos[2], 6);
+                    document.getElementById('borUSDT').innerText = ethers.utils.formatUnits(pos[3], 6);
+                    
+                    const col = pos[0].add(pos[1]);
+                    const debt = pos[2].add(pos[3]);
+                    let ratio = 0;
+                    if(col.gt(0)) {
+                        ratio = (debt.toNumber() / col.toNumber()) * 100;
+                    }
+                    document.getElementById('borrowLimitUsed').innerText = ratio.toFixed(2) + "%";
+                }
+
+                // 4. Protocol Liquidity
+                const liqData = await provider.call({ to: config.LiteLend, data: SELECTORS.getLiquidity });
+                if(liqData !== "0x") {
+                    const liq = ethers.utils.defaultAbiCoder.decode(["uint256","uint256"], liqData);
+                    document.getElementById('liqUSDC').innerText = ethers.utils.formatUnits(liq[0], 6);
+                    document.getElementById('liqUSDT').innerText = ethers.utils.formatUnits(liq[1], 6);
+                }
+
+            } catch (err) {
+                console.error("Fetch err:", err);
+            }
+        }
+
+        async function doAction(tokenSym, action) {
+            if(!signer) return toast("Connect wallet first", true);
+            
+            const tokenAddr = tokenSym === 'USDC' ? config.USDC : config.USDT;
+            let inpId = "";
+            if(action === 'supply' || action === 'withdraw') inpId = `inpSup${tokenSym}`;
+            if(action === 'borrow' || action === 'repay') inpId = `inpBor${tokenSym}`;
+            
+            const val = document.getElementById(inpId).value;
+            if(!val || isNaN(val) || val <= 0) return toast("Invalid amount", true);
+            
+            const amountWei = ethers.utils.parseUnits(val, 6);
+
+            try {
+                toast(`Pending ${action}...`);
+                
+                // Approvals for supply/repay
+                if(action === 'supply' || action === 'repay') {
+                    const token = new ethers.Contract(tokenAddr, ERC20_ABI, signer);
+                    const allw = await token.allowance(userAddress, config.LiteLend);
+                    if(allw.lt(amountWei)) {
+                        toast("Approving token...");
+                        const tx = await token.approve(config.LiteLend, ethers.constants.MaxUint256);
+                        await tx.wait();
+                        toast("Approved!");
+                    }
+                }
+
+                // Encode tx
+                const data = SELECTORS[action] + ethers.utils.defaultAbiCoder.encode(["address","uint256"], [tokenAddr, amountWei]).slice(2);
+                const tx = await signer.sendTransaction({
+                    to: config.LiteLend,
+                    data: data
+                });
+                
+                toast("Tx sent! Waiting...");
+                await tx.wait();
+                toast("Transaction Success!");
+                
+                document.getElementById(inpId).value = "";
+                refreshData();
+
+            } catch (err) {
+                console.error(err);
+                toast(err.reason || err.message.substring(0,30) + "...", true);
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
